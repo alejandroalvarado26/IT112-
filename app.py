@@ -1,6 +1,32 @@
-from flask import Flask, request, render_template_string
+from flask import Flask, request, render_template_string, render_template
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///artists.sqlite3'
+
+db = SQLAlchemy(app)
+class artists(db.Model):
+    id = db.Column('artist_id', db.Integer, primary_key = True, autoincrement = True)
+    name = db.Column(db.String(50))
+    formationYear = db.Column(db.Integer)
+    genre = db.Column(db.String(50))
+
+    def __init__(self, name, formationYear, genre):
+        self.name = name
+        self.formationYear =  formationYear
+        self.genre = genre
+
+with app.app_context():
+    db.create_all()
+    
+    metallica = artists(name="Metallica", formationYear=1981, genre="Thrash Metal")
+    slayer = artists(name="Slayer", formationYear=1981, genre="Thrash Metal")
+    sepultura = artists(name="Sepultura", formationYear=1984, genre="Thrash Metal")
+    bathory = artists(name="Bathory", formationYear=1983, genre="Black Metal")
+
+    db.session.add_all([metallica, slayer, sepultura, bathory])
+    db.session.commit()
+
 
 @app.route("/")
 def name():
@@ -95,3 +121,26 @@ def fortuneTeller():
         return f"Your name is {user}, and your fortune is: {fortune}"
     return render_template_string(form_html)
 
+@app.route("/artistlist")
+def artistList():
+    return render_template("artistlist.html")
+
+@app.route("/metallica")
+def metallicaDetail():
+    artist = artists.query.filter_by(name="Metallica").first()
+    return f"The band {artist.name}, ID number {artist.id}, was founded in {artist.formationYear} and plays {artist.genre}"
+
+@app.route("/slayer")
+def slayerDetail():
+    artist = artists.query.filter_by(name="Slayer").first()
+    return f"The band {artist.name}, ID number {artist.id}, was founded in {artist.formationYear} and plays {artist.genre}"
+
+@app.route("/sepultura")
+def sepulturaDetail():
+    artist = artists.query.filter_by(name="Sepultura").first()
+    return f"The band {artist.name}, ID number {artist.id}, was founded in {artist.formationYear} and plays {artist.genre}"
+
+@app.route("/bathory")
+def bathoryDetail():
+    artist = artists.query.filter_by(name="Bathory").first()
+    return f"The band {artist.name}, ID number {artist.id}, was founded in {artist.formationYear} and plays {artist.genre}"

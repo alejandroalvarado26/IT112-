@@ -1,10 +1,12 @@
 from flask import Flask, request, render_template_string, render_template
 from flask_sqlalchemy import SQLAlchemy
+from flask_restful import Resource, Api, reqparse, fields, marshal_with, abort
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///artists.sqlite3'
-
 db = SQLAlchemy(app)
+api = Api(app)
+
 class artists(db.Model):
     id = db.Column('artist_id', db.Integer, primary_key = True, autoincrement = True)
     name = db.Column(db.String(50))
@@ -16,6 +18,40 @@ class artists(db.Model):
         self.formationYear =  formationYear
         self.genre = genre
 
+artist_args = reqparse.RequestParser()
+artist_args.add_argument('name', type=str, required=True, help="Invalid name")
+artist_args.add_argument('formationYear', type=int, required=True, help="Invalid year")
+artist_args.add_argument('genre', type=str, required=True, help="Invalid genre")
+
+artistsFields = {
+    'id':fields.Integer,
+    'name':fields.String,
+    'formationYear':fields.Integer,
+    'genre':fields.String,
+}
+
+class artistsResource(Resource):
+    @marshal_with(artistsFields)
+    def get(self):
+        artistList = artists.query.all()
+        return artistList
+
+    @marshal_with(artistsFields)
+    def post(self):
+        try:
+            args = artist_args.parse_args()
+            newArtist = artists(name=args["name"], formationYear=args["formationYear"], genre=args["genre"])
+            db.session.add(newArtist)
+            db.session.commit()
+            return newArtist, 200
+        except Exception:
+            db.session.rollback()
+            abort(500)
+
+
+api.add_resource(artistsResource, '/api/artists/')
+
+"""
 with app.app_context():
     db.create_all()
     
@@ -26,7 +62,7 @@ with app.app_context():
 
     db.session.add_all([metallica, slayer, sepultura, bathory])
     db.session.commit()
-
+"""
 
 @app.route("/")
 def name():
@@ -144,3 +180,4 @@ def sepulturaDetail():
 def bathoryDetail():
     artist = artists.query.filter_by(name="Bathory").first()
     return f"The band {artist.name}, ID number {artist.id}, was founded in {artist.formationYear} and plays {artist.genre}"
+

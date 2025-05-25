@@ -181,3 +181,5 @@ def bathoryDetail():
     artist = artists.query.filter_by(name="Bathory").first()
     return f"The band {artist.name}, ID number {artist.id}, was founded in {artist.formationYear} and plays {artist.genre}"
 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)

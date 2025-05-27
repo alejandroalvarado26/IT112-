@@ -1,0 +1,6 @@
+services:
+  app:
+    image: djangoimage
+    container_name: djangocontainer
+    ports:
+      - "8001:8000"

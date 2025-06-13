@@ -1,0 +1,15 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>{{ band.name }} Detail Page</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}"> 
+</head>
+<body>
+    <h1>Name: {{ band.name }}</h1>
+    <h1>Genre: {{ band.genre }}</h1>
+    <h1>Formation year: {{ band.formation_year }}</h1>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>A List of Bands</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}"> 
+</head>
+<body>
+    <h1>Bands</h1>
+    {% for band in bands %}
+    -<a href = "{{band.get_absolute_url}}"> {{band.name}} <br></a> 
+    {% endfor %}
+ 
+    
+</body>
+</html>
